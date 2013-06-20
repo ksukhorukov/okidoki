@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+   <title>Document: <%= session[:doc_name] %></title>
+
+   <link rel="stylesheet" type="text/css" href="/lib/css/bootstrap.min.css"></link>
+   <link rel="stylesheet" type="text/css" href="/lib/css/bootstrap-responsive.min.css">
+
+   <script src="/lib/js/jquery-1.7.2.min.js"></script>
+   <script src="/lib/js/bootstrap.min.js"></script> 
+
+<script>
+
+var ws;
+var doc_id = "<%= session[:doc_id] %>"
+var doc_name = "<%= session[:doc_name] %>"
+var user_id = "<%= session[:user_id] %>"
+var current_editor = "<%= session[:user_name] %>";
+
+var metadata = { msg_type: "update", "doc_id": doc_id, "user_id": user_id, "user_name": current_editor, "content": "" };
+var initialization_data = { msg_type: "init", doc_id: doc_id, "user_id": user_id, "user_name": current_editor };
+
+console.log("Init: " + JSON.stringify(initialization_data));
+console.log("Metadata: " + JSON.stringify(metadata));
+
+
+
+$(document).ready(function() {
+
+   if (!("WebSocket" in window)) {
+      alert("Sorry, WebSockets unavailable.");
+      return;
+   }
+
+   ws = new WebSocket("ws://<%= request.env['SERVER_NAME'] %>:8182/");
+
+   ws.onopen = function(evt) {
+      ws.send(JSON.stringify(initialization_data));
+      console.log("Requested initial data for the loaded input area");
+   }
+
+   ws.onmessage = function(evt) {
+      var data = jQuery.parseJSON(evt.data);
+      if(data.msg_type == 'update') { 
+         $('#u_document').val(data.body);      
+         console.log("Message from server: " + data.body);
+      } else if(data.msg_type == 'editors_list') {
+         console.log("Message from server: " + data.body);
+         $(".user").remove();
+         var active_users = data.body
+         active_users.forEach(function(user) {
+            $("#userlist").append(
+               $('<li>').attr('class', 'user').append(
+                  $('<a>').attr('href','#').append(user)
+               ));
+         });
+      }
+   };
+
+   ws.onclose = function() {
+      console.log("socket closed");
+   };
+
+   $("#u_document").on("input", function(evt) {
+      metadata.content = this.value
+      console.log('Form changed: ' + this.value);
+      send(metadata);
+   });
+
+});
+
+function send(data) {
+   ws.send(JSON.stringify(data));
+}   
+
+</script>
+</head>
+<body>
+   <div class="container">
+	<div class="hero-unit" style="margin-top:40px">
+		<h1 style="font-size:58px"><%= session[:doc_name] %></h1>
+		<hr/>
+		<textarea class="textarea" id="u_document" placeholder="Ready for action..." style="width: 810px; height: 200px"></textarea>
+                <ul class="nav nav-list pull-right" id="userlist">
+	           <li class="nav-header">Active users</li>
+                   <li class="user"><a href="#"><%= session[:user_name] %></a></li>
+               </ul>
+               <br/><a class="nav" href="/">&lt;&lt; Home</a>
+	</div>
+   </div>
+</body>
+</html>

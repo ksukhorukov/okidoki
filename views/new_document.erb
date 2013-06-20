@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>New document creation</title>
+<script src="/lib/js/jquery-1.7.2.min.js"></script>
+<script>
+
+$(document).ready(function() {
+   
+
+   var doc_name;
+
+
+      while(!doc_name) {
+         doc_name = prompt('Please enter document name:', "");
+      }
+
+      $.ajax({
+         type: "GET",
+         url: "/set_name/" + doc_name
+      }).done(function(msg) {
+          result = JSON.parse(msg);
+          if(result.success != "true") {
+             alert("Error: " + result.description);
+             window.location.reload()
+          } else {
+	     window.location.href = "/edit/" + result.description;
+          }
+      });
+
+     
+});
+
+</script>
+</head>
+<body>
+</body>
+</html>

@@ -1,0 +1,10 @@
+source 'https://rubygems.org'
+gem 'rack'
+gem 'thin'
+gem 'sinatra'
+gem 'eventmachine'
+gem 'em-websocket'
+gem 'mongo'
+gem 'json'
+gem 'bson_ext'
+
