@@ -14,7 +14,8 @@ Technology stack: Ruby, Sinatra, Thin, EventMachine and MongoDB.
 <b>== REQUIREMENTS</b>
 
 1) Ruby v.1.9.3 or higher<br/>
-2) gems from the 'Gemfile' & all dependences
+2) gems from the 'Gemfile' & all dependences<br/>
+3) MongoDB<br/>
 
 NOTE: Run your mongodb service without credentials for the localhost (this is so by default).
 
